@@ -3,9 +3,11 @@ const sqlite3 = require('sqlite3')
 const { open } = require('sqlite')
 const openDb = require('./db/openDb')
 const initializeTables = require('./db/initializeTables')
+const cors = require('cors')
 
 const app = express()
 app.use(express.json())
+app.use(cors())
 
 initializeTables()
 
@@ -25,10 +27,15 @@ app.post('/users', async (req, res) => {
 
 // Create Recipe
 app.post('/recipes', async (req, res) => {
-  const { title, ingredients, instructions, user_id } = req.body
+  const { title, ingredients, instructions, imageUrl } = req.body
+  console.log('title ' + title)
+  console.log('ingredients ' + ingredients)
+  console.log('instructions ' + instructions)
+  console.log('imageUrl ' + imageUrl)
+  const user_id = 1 // assuming no auth on client
   const { lastID } = await db.run(
-    'INSERT INTO recipes (title, ingredients, instructions, user_id) VALUES (?, ?, ?, ?)',
-    [title, ingredients, instructions, user_id]
+    'INSERT INTO recipes (title, ingredients, instructions, imageUrl, user_id) VALUES (?, ?, ?, ?, ?)',
+    [title, ingredients, instructions, imageUrl, user_id]
   )
   res
     .status(201)
@@ -78,7 +85,7 @@ app.get('/users/:userId/recipes', async (req, res) => {
   res.json(recipes)
 })
 
-const PORT = process.env.PORT || 3000
+const PORT = process.env.PORT || 3001
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`)
